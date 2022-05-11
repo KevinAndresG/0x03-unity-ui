@@ -1,6 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
@@ -8,10 +8,15 @@ public class PlayerController : MonoBehaviour
 	public float speed;
 	private int score;
 	public int health;
+	public Text scoreText;
+	public Text healthText;
+	public Image winLoseBG;
+	public Text winLoseText;
+	public PlayerController playerControll;
 	// Start is called before the first frame update
 	void Start()
 	{
-		speed = 800f;
+		speed = 1000f;
 		score = 0;
 		health = 5;
 	}
@@ -41,28 +46,49 @@ public class PlayerController : MonoBehaviour
 		if (other.tag == "Pickup")
 		{
 			score++;
-			Debug.Log($"Score:{score}");
+			SetScoreText();
 			other.gameObject.SetActive(false);
 		}
 		else if (other.tag == "Trap")
 		{
 			health--;
-			Debug.Log($"Health:{health}");
-
+			SetHealthText();
 		}
-		if (health == 0)
-		{
-			Debug.Log("Game Over!");
-			SceneManager.LoadScene("maze");
-			Start();
-		}
-		if (other.tag == "Goal" && score < 30)
+		if (other.tag == "Goal" && score < 3)
 		{
 			Debug.Log($"Coins Left {30 - score}");
 		}
-		else if (other.tag == "Goal" && score == 30)
+		if (other.tag == "Goal" && score >= 3)
 		{
-			Debug.Log("You win!");
+			winLoseBG.gameObject.SetActive(true);
+			winLoseBG.color = Color.green;
+			winLoseText.text = "You Win!";
+			winLoseText.color = Color.black;
+			playerControll.enabled = false;
+			StartCoroutine(LoadScene(3));
 		}
+		if (health == 0)
+		{
+			winLoseBG.gameObject.SetActive(true);
+			winLoseBG.color = Color.red;
+			winLoseText.text = "Game Over!";
+			winLoseText.color = Color.white;
+			playerControll.enabled = false;
+			StartCoroutine(LoadScene(3));
+			Start();
+		}
+	}
+	void SetScoreText()
+	{
+		scoreText.text = $"Score: {score}";
+	}
+	void SetHealthText()
+	{
+		healthText.text = $"Health: {health}";
+	}
+	IEnumerator LoadScene(float seconds)
+	{
+		yield return new WaitForSeconds(seconds);
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 }
