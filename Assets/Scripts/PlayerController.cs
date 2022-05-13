@@ -12,13 +12,16 @@ public class PlayerController : MonoBehaviour
     public Text healthText;
     public Image winLoseBG;
     public Text winLoseText;
+    private Transform[] Coins;
     public PlayerController playerControll;
+    public GameObject CoinsF;
     // Start is called before the first frame update
     void Start()
     {
         speed = 1000f;
         score = 0;
         health = 5;
+        Coins = CoinsF.GetComponentsInChildren<Transform>();
     }
 
     // Update is called once per frame
@@ -54,18 +57,18 @@ public class PlayerController : MonoBehaviour
             health--;
             SetHealthText();
         }
-        if (other.tag == "Goal" && score < 30)
+        if (other.tag == "Goal" && score < Coins.Length - 1)
         {
-            Debug.Log($"Coins Left {30 - score}");
+            Debug.Log($"Coins Left {(Coins.Length - 1) - score}");
         }
-        if (other.tag == "Goal" && score >= 30)
+        if (other.tag == "Goal" && score >= (Coins.Length - 1))
         {
             winLoseBG.gameObject.SetActive(true);
             winLoseBG.color = Color.green;
             winLoseText.text = "You Win!";
             winLoseText.color = Color.black;
             playerControll.enabled = false;
-            StartCoroutine(LoadScene(3));
+            StartCoroutine(WinLoadScene(3));
         }
         if (health == 0)
         {
@@ -74,7 +77,7 @@ public class PlayerController : MonoBehaviour
             winLoseText.text = "Game Over!";
             winLoseText.color = Color.white;
             playerControll.enabled = false;
-            StartCoroutine(LoadScene(3));
+            StartCoroutine(LoseLoadScene(3));
             Start();
         }
     }
@@ -86,9 +89,21 @@ public class PlayerController : MonoBehaviour
     {
         healthText.text = $"Health: {health}";
     }
-    IEnumerator LoadScene(float seconds)
+    IEnumerator LoseLoadScene(float seconds)
     {
         yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    IEnumerator WinLoadScene(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        if ((SceneManager.GetActiveScene().buildIndex + 1) < 3)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+        else
+        {
+            SceneManager.LoadScene("menu");
+        }
     }
 }
